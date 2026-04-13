@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Công cụ mã hóa cổ điển & Modulo - Caesar, Vigenère, Playfair, Substitution, Transposition, Modular Inverse">
-    <title>Crypto Classic | Mã Hóa & Modulo</title>
+    <meta name="description" content="Công cụ mã hóa cổ điển, Modulo & RSA - Caesar, Vigenère, Playfair, Substitution, Transposition, Modular Inverse, RSA">
+    <title>Crypto Classic | Mã Hóa & Mật Mã</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -26,6 +26,7 @@
             <a href="#" data-section="playfair" onclick="showSection('playfair'); return false;">Playfair</a>
             <a href="#" data-section="transposition" onclick="showSection('transposition'); return false;">Hoán Vị</a>
             <a href="#" data-section="mod-inverse" onclick="showSection('mod-inverse'); return false;">Nghịch Đảo Mod</a>
+            <a href="#" data-section="rsa" onclick="showSection('rsa'); return false;">RSA</a>
         </nav>
     </div>
 </header>
@@ -42,6 +43,7 @@
         <span class="badge badge-orange" style="cursor:pointer" onclick="showSection('playfair')">📋 Playfair</span>
         <span class="badge badge-pink" style="cursor:pointer" onclick="showSection('transposition')">🔀 Hoán Vị</span>
         <span class="badge badge-blue" style="cursor:pointer" onclick="showSection('mod-inverse')">🧮 Nghịch Đảo Mod</span>
+        <span class="badge badge-purple" style="cursor:pointer" onclick="showSection('rsa')">🔏 RSA</span>
     </div>
 </section>
 
@@ -527,11 +529,152 @@
         </div>
     </div>
 </section>
+
+<!-- ═══════════════════════════════════════
+     8. RSA - BÀI TOÁN 1
+     ═══════════════════════════════════════ -->
+<section class="cipher-section" id="section-rsa">
+    <div class="section-header">
+        <div class="section-icon purple">🔏</div>
+        <div>
+            <h2>Thuật Toán RSA — Bài Toán 1</h2>
+            <p>An mã hóa M bằng khóa công khai, Ba giải mã C bằng khóa bí mật</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="formula-box">
+            <strong>Tạo khóa:</strong> n = p×q, φ(n) = (p−1)(q−1), d = e⁻¹ mod φ(n)<br>
+            <strong>Mã hóa:</strong> C = M<sup>e</sup> mod n<br>
+            <strong>Giải mã:</strong> M' = C<sup>d</sup> mod n
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="rsa-p">Số nguyên tố p</label>
+                <input type="number" id="rsa-p" placeholder="VD: 7" value="7">
+            </div>
+            <div class="form-group">
+                <label for="rsa-q">Số nguyên tố q</label>
+                <input type="number" id="rsa-q" placeholder="VD: 11" value="11">
+            </div>
+            <div class="form-group">
+                <label for="rsa-e">Khóa công khai e</label>
+                <input type="number" id="rsa-e" placeholder="VD: 17" value="17">
+            </div>
+            <div class="form-group">
+                <label for="rsa-m">Bản rõ M (số nguyên, M < n)</label>
+                <input type="number" id="rsa-m" placeholder="VD: 8" value="8">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="runRSA()">🔏 Thực thi RSA</button>
+            <button class="btn btn-outline" onclick="clearSection('rsa')">🗑️ Xóa</button>
+        </div>
+
+        <div class="result-container" id="rsa-result">
+            <!-- Khóa -->
+            <div class="result-box fresh">
+                <div class="result-label">a) Khóa công khai PU = {e, n}</div>
+                <div class="result-value primary" id="rsa-pu"></div>
+            </div>
+            <div class="result-box">
+                <div class="result-label">b) Khóa bí mật PR = {d, n}</div>
+                <div class="result-value" style="color:var(--accent-orange)" id="rsa-pr"></div>
+            </div>
+
+            <!-- Mã hóa -->
+            <div class="result-box">
+                <div class="result-label">c) An mã hóa: C = M<sup>e</sup> mod n</div>
+                <div class="result-value success" id="rsa-cipher"></div>
+            </div>
+
+            <!-- Giải mã -->
+            <div class="result-box">
+                <div class="result-label">d) Ba giải mã: M' = C<sup>d</sup> mod n</div>
+                <div class="result-value" id="rsa-decrypted"></div>
+            </div>
+
+            <!-- Kiểm chứng -->
+            <div class="key-stream-display" id="rsa-verify-box">
+                <div class="ks-label">Kiểm chứng</div>
+                <div class="ks-value" id="rsa-verify"></div>
+            </div>
+
+            <!-- Chi tiết các bước -->
+            <button class="steps-toggle" onclick="toggleSteps('rsa-key-steps')">📊 Xem chi tiết tạo khóa</button>
+            <div class="steps-content" id="rsa-key-steps">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bước</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rsa-key-steps-body"></tbody>
+                </table>
+
+                <div class="result-label" style="margin-top:16px">Bảng Euclid mở rộng (tìm d)</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>r</th>
+                            <th>q</th>
+                            <th>x</th>
+                            <th>y</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rsa-euclid-body"></tbody>
+                </table>
+            </div>
+
+            <button class="steps-toggle" onclick="toggleSteps('rsa-enc-steps')">📊 Xem chi tiết mã hóa (lũy thừa modulo)</button>
+            <div class="steps-content" id="rsa-enc-steps">
+                <div class="result-label">Mã hóa: M<sup>e</sup> mod n — Binary exponentiation</div>
+                <div class="key-stream-display" id="rsa-enc-binary-box">
+                    <div class="ks-label">e ở dạng nhị phân</div>
+                    <div class="ks-value" id="rsa-enc-binary"></div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bit</th>
+                            <th>Sau bình phương</th>
+                            <th>Kết quả</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rsa-enc-steps-body"></tbody>
+                </table>
+            </div>
+
+            <button class="steps-toggle" onclick="toggleSteps('rsa-dec-steps')">📊 Xem chi tiết giải mã (lũy thừa modulo)</button>
+            <div class="steps-content" id="rsa-dec-steps">
+                <div class="result-label">Giải mã: C<sup>d</sup> mod n — Binary exponentiation</div>
+                <div class="key-stream-display" id="rsa-dec-binary-box">
+                    <div class="ks-label">d ở dạng nhị phân</div>
+                    <div class="ks-value" id="rsa-dec-binary"></div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bit</th>
+                            <th>Sau bình phương</th>
+                            <th>Kết quả</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rsa-dec-steps-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
 </div>
 
 <!-- ════════ FOOTER ════════ -->
 <footer class="footer">
-    <p>An Toàn và Bảo Mật Thông Tin — Bài tập lớn: Mã hóa cổ điển & Modulo</p>
+    <p>An Toàn và Bảo Mật Thông Tin — Bài tập lớn: Mã hóa cổ điển, Modulo & RSA</p>
 </footer>
 
 <!-- ════════ JS FILES ════════ -->
@@ -542,6 +685,7 @@
 <script src="js/ma-hoa-co-dien/playfair.js"></script>
 <script src="js/ma-hoa-co-dien/transposition.js"></script>
 <script src="js/modulo/modular-inverse.js"></script>
+<script src="js/rsa/rsa.js"></script>
 
 <script>
 /* ═══════════════════════════════════════
@@ -866,6 +1010,94 @@ function runModInverseEuclid() {
     }
 
     document.getElementById('modinv-euc-result').classList.add('show');
+}
+
+/* ═══════════════════════════════════════
+   8. RSA
+   ═══════════════════════════════════════ */
+function runRSA() {
+    const p = document.getElementById('rsa-p').value.trim();
+    const q = document.getElementById('rsa-q').value.trim();
+    const e = document.getElementById('rsa-e').value.trim();
+    const M = document.getElementById('rsa-m').value.trim();
+    if (!p || !q || !e || !M) return alert('Vui lòng nhập đầy đủ p, q, e, M!');
+
+    let result;
+    try {
+        result = rsaProblem1(BigInt(p), BigInt(q), BigInt(e), BigInt(M));
+    } catch (err) {
+        return alert('Lỗi: ' + err.message);
+    }
+
+    if (result.error) {
+        document.getElementById('rsa-pu').textContent = result.error;
+        document.getElementById('rsa-pu').style.color = 'var(--accent-red)';
+        document.getElementById('rsa-pr').textContent = '';
+        document.getElementById('rsa-cipher').textContent = '';
+        document.getElementById('rsa-decrypted').textContent = '';
+        document.getElementById('rsa-verify').textContent = '';
+        document.getElementById('rsa-result').classList.add('show');
+        return;
+    }
+
+    // Hiển thị kết quả
+    document.getElementById('rsa-pu').textContent = result.summary.PU;
+    document.getElementById('rsa-pu').style.color = '';
+    document.getElementById('rsa-pr').textContent = result.summary.PR;
+    document.getElementById('rsa-cipher').textContent = `C = ${result.summary.C}`;
+    document.getElementById('rsa-decrypted').textContent = `M' = ${result.summary.MPrime}`;
+    document.getElementById('rsa-decrypted').style.color = result.verified ? 'var(--accent-green)' : 'var(--accent-red)';
+
+    document.getElementById('rsa-verify').textContent = result.verified
+        ? `✅ M' = ${result.summary.MPrime} = M → Giải mã thành công!`
+        : `❌ M' = ${result.summary.MPrime} ≠ M = ${M} → Giải mã thất bại!`;
+
+    // Bảng tạo khóa
+    const keyBody = document.getElementById('rsa-key-steps-body');
+    keyBody.innerHTML = result.keys.steps.map(s => `
+        <tr>
+            <td class="cell-key">${s.label}</td>
+            <td>${s.formula}</td>
+        </tr>
+    `).join('');
+
+    // Bảng Euclid
+    const eucBody = document.getElementById('rsa-euclid-body');
+    if (result.keys.euclidSteps) {
+        eucBody.innerHTML = result.keys.euclidSteps.map(s => `
+            <tr style="${s.r === 0n ? 'opacity:0.5' : ''}">
+                <td class="cell-highlight">${s.r.toString()}</td>
+                <td class="cell-key">${s.q.toString()}</td>
+                <td>${s.x.toString()}</td>
+                <td>${s.y.toString()}</td>
+                <td style="font-size:0.78rem;color:var(--text-secondary)">${s.formula || 'Khởi tạo'}</td>
+            </tr>
+        `).join('');
+    }
+
+    // Mã hóa steps
+    document.getElementById('rsa-enc-binary').textContent = result.encrypted.binary;
+    const encBody = document.getElementById('rsa-enc-steps-body');
+    encBody.innerHTML = result.encrypted.modPowSteps.map(s => `
+        <tr>
+            <td class="cell-key">${s.bit}</td>
+            <td>${s.afterSquare.toString()}</td>
+            <td class="cell-result">${s.result.toString()}</td>
+        </tr>
+    `).join('');
+
+    // Giải mã steps
+    document.getElementById('rsa-dec-binary').textContent = result.decrypted.binary;
+    const decBody = document.getElementById('rsa-dec-steps-body');
+    decBody.innerHTML = result.decrypted.modPowSteps.map(s => `
+        <tr>
+            <td class="cell-key">${s.bit}</td>
+            <td>${s.afterSquare.toString()}</td>
+            <td class="cell-result">${s.result.toString()}</td>
+        </tr>
+    `).join('');
+
+    document.getElementById('rsa-result').classList.add('show');
 }
 </script>
 
