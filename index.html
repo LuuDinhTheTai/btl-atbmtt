@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Công cụ mã hóa cổ điển - Caesar, Vigenère, Playfair, Substitution, Transposition">
-    <title>Mã Hóa Cổ Điển | Classical Ciphers</title>
+    <meta name="description" content="Công cụ mã hóa cổ điển & Modulo - Caesar, Vigenère, Playfair, Substitution, Transposition, Modular Inverse">
+    <title>Crypto Classic | Mã Hóa & Modulo</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -25,14 +25,15 @@
             <a href="#" data-section="substitution" onclick="showSection('substitution'); return false;">Chữ Đơn</a>
             <a href="#" data-section="playfair" onclick="showSection('playfair'); return false;">Playfair</a>
             <a href="#" data-section="transposition" onclick="showSection('transposition'); return false;">Hoán Vị</a>
+            <a href="#" data-section="mod-inverse" onclick="showSection('mod-inverse'); return false;">Nghịch Đảo Mod</a>
         </nav>
     </div>
 </header>
 
 <!-- ════════ HERO (HOME) ════════ -->
 <section class="hero cipher-section active" id="section-home">
-    <h1>Mã Hóa <span class="gradient-text">Cổ Điển</span></h1>
-    <p>Khám phá và trải nghiệm các thuật toán mật mã cổ điển — từ Caesar đến Playfair. Mã hóa & giải mã trực tiếp trên trình duyệt.</p>
+    <h1>Mã Hóa <span class="gradient-text">Cổ Điển</span> & Modulo</h1>
+    <p>Khám phá và trải nghiệm các thuật toán mật mã cổ điển & phép toán modulo — từ Caesar đến Playfair, từ nghịch đảo đến Euclid. Tính toán trực tiếp trên trình duyệt.</p>
     <div class="hero-badges">
         <span class="badge badge-blue" style="cursor:pointer" onclick="showSection('caesar')">🔑 Caesar</span>
         <span class="badge badge-purple" style="cursor:pointer" onclick="showSection('vigenere-repeat')">🔗 Vigenère Lặp</span>
@@ -40,6 +41,7 @@
         <span class="badge badge-green" style="cursor:pointer" onclick="showSection('substitution')">🔤 Chữ Đơn</span>
         <span class="badge badge-orange" style="cursor:pointer" onclick="showSection('playfair')">📋 Playfair</span>
         <span class="badge badge-pink" style="cursor:pointer" onclick="showSection('transposition')">🔀 Hoán Vị</span>
+        <span class="badge badge-blue" style="cursor:pointer" onclick="showSection('mod-inverse')">🧮 Nghịch Đảo Mod</span>
     </div>
 </section>
 
@@ -438,9 +440,98 @@
 </section>
 </div>
 
+<!-- ═══════════════════════════════════════
+     7. NGHỊCH ĐẢO MODULO
+     ═══════════════════════════════════════ -->
+<section class="cipher-section" id="section-mod-inverse">
+    <div class="section-header">
+        <div class="section-icon blue">🧮</div>
+        <div>
+            <h2>Tìm Nghịch Đảo Modulo</h2>
+            <p>x = a<sup>−1</sup> mod n — Theo định nghĩa & Thuật toán Euclid mở rộng</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="formula-box">
+            <strong>Định nghĩa:</strong> x = a<sup>−1</sup> mod n ⟺ (a × x) mod n = 1<br>
+            <strong>Điều kiện:</strong> gcd(a, n) = 1<br>
+            <strong>Euclid mở rộng:</strong> Tìm x, y sao cho a·x + n·y = gcd(a, n) = 1 → x mod n là nghịch đảo
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="modinv-a">Giá trị a</label>
+                <input type="number" id="modinv-a" placeholder="VD: 7" value="7">
+            </div>
+            <div class="form-group">
+                <label for="modinv-n">Modulo n</label>
+                <input type="number" id="modinv-n" placeholder="VD: 26" value="26">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="runModInverseDefinition()">📖 Theo Định Nghĩa</button>
+            <button class="btn btn-secondary" onclick="runModInverseEuclid()">⚡ Euclid Mở Rộng</button>
+            <button class="btn btn-outline" onclick="clearSection('mod-inverse')">🗑️ Xóa</button>
+        </div>
+
+        <!-- KẾT QUẢ THEO ĐỊNH NGHĨA -->
+        <div class="result-container" id="modinv-def-result">
+            <div class="result-box fresh">
+                <div class="result-label">Phương pháp: Theo Định Nghĩa (Brute Force)</div>
+                <div class="result-value success" id="modinv-def-output"></div>
+            </div>
+            <button class="steps-toggle" onclick="toggleSteps('modinv-def-steps')">📊 Xem chi tiết duyệt</button>
+            <div class="steps-content" id="modinv-def-steps">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>x</th>
+                            <th>a × x</th>
+                            <th>(a × x) mod n</th>
+                            <th>Kết quả</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modinv-def-steps-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- KẾT QUẢ EUCLID MỞ RỘNG -->
+        <div class="result-container" id="modinv-euc-result">
+            <div class="result-box fresh">
+                <div class="result-label">Phương pháp: Euclid Mở Rộng</div>
+                <div class="result-value primary" id="modinv-euc-output"></div>
+            </div>
+            <div class="key-stream-display" id="modinv-euc-verify" style="display:none">
+                <div class="ks-label">Kiểm chứng</div>
+                <div class="ks-value" id="modinv-euc-verify-text"></div>
+            </div>
+            <button class="steps-toggle" onclick="toggleSteps('modinv-euc-steps')">📊 Xem bảng Euclid mở rộng</button>
+            <div class="steps-content" id="modinv-euc-steps">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bước</th>
+                            <th>r</th>
+                            <th>q</th>
+                            <th>x</th>
+                            <th>y</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modinv-euc-steps-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</div>
+
 <!-- ════════ FOOTER ════════ -->
 <footer class="footer">
-    <p>An Toàn và Bảo Mật Thông Tin — Bài tập lớn: Mã hóa cổ điển</p>
+    <p>An Toàn và Bảo Mật Thông Tin — Bài tập lớn: Mã hóa cổ điển & Modulo</p>
 </footer>
 
 <!-- ════════ JS FILES ════════ -->
@@ -450,6 +541,7 @@
 <script src="js/ma-hoa-co-dien/substitution.js"></script>
 <script src="js/ma-hoa-co-dien/playfair.js"></script>
 <script src="js/ma-hoa-co-dien/transposition.js"></script>
+<script src="js/modulo/modular-inverse.js"></script>
 
 <script>
 /* ═══════════════════════════════════════
@@ -690,6 +782,90 @@ function runTransposition() {
     }
 
     document.getElementById('trans-result').classList.add('show');
+}
+
+/* ═══════════════════════════════════════
+   7. NGHỊCH ĐẢO MODULO
+   ═══════════════════════════════════════ */
+function runModInverseDefinition() {
+    const a = document.getElementById('modinv-a').value.trim();
+    const n = document.getElementById('modinv-n').value.trim();
+    if (!a || !n) return alert('Vui lòng nhập a và n!');
+
+    const result = modInverseByDefinition(a, n);
+
+    // Ẩn kết quả Euclid nếu đang hiện
+    document.getElementById('modinv-euc-result').classList.remove('show');
+
+    if (result.error) {
+        document.getElementById('modinv-def-output').textContent = result.error;
+        document.getElementById('modinv-def-output').className = 'result-value';
+        document.getElementById('modinv-def-output').style.color = 'var(--accent-red)';
+    } else {
+        document.getElementById('modinv-def-output').textContent =
+            `x = ${result.result}    (vì ${result.a} × ${result.result} = ${result.a * result.result} ≡ 1 mod ${result.n})`;
+        document.getElementById('modinv-def-output').className = 'result-value success';
+        document.getElementById('modinv-def-output').style.color = '';
+    }
+
+    const tbody = document.getElementById('modinv-def-steps-body');
+    if (result.steps && result.steps.length > 0) {
+        tbody.innerHTML = result.steps.map(s => `
+            <tr style="${s.found ? 'background:rgba(52,211,153,0.08)' : ''}">
+                <td class="${s.found ? 'cell-result' : ''}">${s.x}</td>
+                <td>${s.product}</td>
+                <td class="${s.found ? 'cell-result' : ''}">${s.mod}</td>
+                <td>${s.found ? '✅ Tìm thấy!' : '—'}</td>
+            </tr>
+        `).join('');
+    } else {
+        tbody.innerHTML = '';
+    }
+
+    document.getElementById('modinv-def-result').classList.add('show');
+}
+
+function runModInverseEuclid() {
+    const a = document.getElementById('modinv-a').value.trim();
+    const n = document.getElementById('modinv-n').value.trim();
+    if (!a || !n) return alert('Vui lòng nhập a và n!');
+
+    const result = modInverseByEuclid(a, n);
+
+    // Ẩn kết quả định nghĩa nếu đang hiện
+    document.getElementById('modinv-def-result').classList.remove('show');
+
+    if (result.error) {
+        document.getElementById('modinv-euc-output').textContent = result.error;
+        document.getElementById('modinv-euc-output').className = 'result-value';
+        document.getElementById('modinv-euc-output').style.color = 'var(--accent-red)';
+        document.getElementById('modinv-euc-verify').style.display = 'none';
+    } else {
+        document.getElementById('modinv-euc-output').textContent =
+            `x = ${result.result}    (raw x = ${result.rawX}, chuẩn hóa: (${result.rawX} mod ${result.n} + ${result.n}) mod ${result.n} = ${result.result})`;
+        document.getElementById('modinv-euc-output').className = 'result-value primary';
+        document.getElementById('modinv-euc-output').style.color = '';
+        document.getElementById('modinv-euc-verify').style.display = 'block';
+        document.getElementById('modinv-euc-verify-text').textContent = result.verification;
+    }
+
+    const tbody = document.getElementById('modinv-euc-steps-body');
+    if (result.steps && result.steps.length > 0) {
+        tbody.innerHTML = result.steps.map(s => `
+            <tr style="${s.r === 0 ? 'opacity:0.5' : ''}">
+                <td>${s.step}</td>
+                <td class="${s.r === 0 ? '' : 'cell-highlight'}">${s.r}</td>
+                <td class="cell-key">${s.q}</td>
+                <td>${s.x}</td>
+                <td>${s.y}</td>
+                <td style="font-size:0.78rem;color:var(--text-secondary)">${s.formula || 'Khởi tạo'}</td>
+            </tr>
+        `).join('');
+    } else {
+        tbody.innerHTML = '';
+    }
+
+    document.getElementById('modinv-euc-result').classList.add('show');
 }
 </script>
 
