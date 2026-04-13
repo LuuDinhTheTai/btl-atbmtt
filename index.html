@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Công cụ mã hóa cổ điển - Caesar, Vigenère, Playfair, Substitution, Transposition">
+    <title>Mã Hóa Cổ Điển | Classical Ciphers</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<header class="header">
+    <div class="header-inner">
+        <a href="#" class="logo" onclick="showSection('home'); return false;">
+            <div class="logo-icon">🔐</div>
+            <div class="logo-text"><span>Crypto</span>Classic</div>
+        </a>
+        <button class="menu-toggle" onclick="toggleMenu()" aria-label="Menu">☰</button>
+        <nav id="mainNav">
+            <a href="#" class="active" data-section="home" onclick="showSection('home'); return false;">Trang chủ</a>
+            <a href="#" data-section="caesar" onclick="showSection('caesar'); return false;">Caesar</a>
+            <a href="#" data-section="vigenere-repeat" onclick="showSection('vigenere-repeat'); return false;">Vigenère Lặp</a>
+            <a href="#" data-section="vigenere-autokey" onclick="showSection('vigenere-autokey'); return false;">Vigenère Autokey</a>
+            <a href="#" data-section="substitution" onclick="showSection('substitution'); return false;">Chữ Đơn</a>
+            <a href="#" data-section="playfair" onclick="showSection('playfair'); return false;">Playfair</a>
+            <a href="#" data-section="transposition" onclick="showSection('transposition'); return false;">Hoán Vị</a>
+        </nav>
+    </div>
+</header>
+
+<!-- ════════ HERO (HOME) ════════ -->
+<section class="hero cipher-section active" id="section-home">
+    <h1>Mã Hóa <span class="gradient-text">Cổ Điển</span></h1>
+    <p>Khám phá và trải nghiệm các thuật toán mật mã cổ điển — từ Caesar đến Playfair. Mã hóa & giải mã trực tiếp trên trình duyệt.</p>
+    <div class="hero-badges">
+        <span class="badge badge-blue" style="cursor:pointer" onclick="showSection('caesar')">🔑 Caesar</span>
+        <span class="badge badge-purple" style="cursor:pointer" onclick="showSection('vigenere-repeat')">🔗 Vigenère Lặp</span>
+        <span class="badge badge-cyan" style="cursor:pointer" onclick="showSection('vigenere-autokey')">🔄 Vigenère Autokey</span>
+        <span class="badge badge-green" style="cursor:pointer" onclick="showSection('substitution')">🔤 Chữ Đơn</span>
+        <span class="badge badge-orange" style="cursor:pointer" onclick="showSection('playfair')">📋 Playfair</span>
+        <span class="badge badge-pink" style="cursor:pointer" onclick="showSection('transposition')">🔀 Hoán Vị</span>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     1. CAESAR
+     ═══════════════════════════════════════ -->
+<div class="main-container">
+<section class="cipher-section" id="section-caesar">
+    <div class="section-header">
+        <div class="section-icon blue">🔑</div>
+        <div>
+            <h2>Mật Mã Caesar</h2>
+            <p>Dịch chuyển từng ký tự trong bảng chữ cái theo khóa K</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="formula-box">
+            <strong>Mã hóa:</strong> C = (M + K) mod 26<br>
+            <strong>Giải mã:</strong> M = (C − K + 26) mod 26
+        </div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" onclick="setMode('caesar', 'encrypt', this)">Mã hóa</button>
+            <button class="mode-btn" onclick="setMode('caesar', 'decrypt', this)">Giải mã</button>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="caesar-input">Văn bản đầu vào</label>
+                <input type="text" id="caesar-input" placeholder="VD: AWOMANGIVESANDFO" value="AWOMANGIVESANDFO">
+            </div>
+            <div class="form-group">
+                <label for="caesar-key">Khóa K (số nguyên)</label>
+                <input type="number" id="caesar-key" placeholder="VD: 11" value="11">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="runCaesar()">⚡ Thực thi</button>
+            <button class="btn btn-outline" onclick="clearSection('caesar')">🗑️ Xóa</button>
+        </div>
+
+        <div class="result-container" id="caesar-result">
+            <div class="result-box fresh">
+                <div class="result-label">Kết quả</div>
+                <div class="result-value success" id="caesar-output"></div>
+            </div>
+            <button class="steps-toggle" onclick="toggleSteps('caesar-steps')">📊 Xem chi tiết từng bước</button>
+            <div class="steps-content" id="caesar-steps">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Ký tự</th>
+                            <th>Giá trị</th>
+                            <th>Công thức</th>
+                            <th>Kết quả</th>
+                        </tr>
+                    </thead>
+                    <tbody id="caesar-steps-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     2. VIGENÈRE LẶP KHÓA
+     ═══════════════════════════════════════ -->
+<section class="cipher-section" id="section-vigenere-repeat">
+    <div class="section-header">
+        <div class="section-icon purple">🔗</div>
+        <div>
+            <h2>Mật Mã Vigenère — Lặp Khóa</h2>
+            <p>Khóa được lặp lại cho đủ chiều dài bản rõ</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="formula-box">
+            <strong>Mã hóa:</strong> C<sub>i</sub> = (M<sub>i</sub> + K<sub>i mod len(K)</sub>) mod 26<br>
+            <strong>Giải mã:</strong> M<sub>i</sub> = (C<sub>i</sub> − K<sub>i mod len(K)</sub> + 26) mod 26
+        </div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" onclick="setMode('vigenere-repeat', 'encrypt', this)">Mã hóa</button>
+            <button class="mode-btn" onclick="setMode('vigenere-repeat', 'decrypt', this)">Giải mã</button>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="vig-repeat-input">Văn bản đầu vào</label>
+                <input type="text" id="vig-repeat-input" placeholder="VD: HONESTYISTHEBE" value="HONESTYISTHEBE">
+            </div>
+            <div class="form-group">
+                <label for="vig-repeat-key">Khóa K (chuỗi)</label>
+                <input type="text" id="vig-repeat-key" placeholder="VD: ABADBE" value="ABADBE">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="runVigenereRepeat()">⚡ Thực thi</button>
+            <button class="btn btn-outline" onclick="clearSection('vigenere-repeat')">🗑️ Xóa</button>
+        </div>
+
+        <div class="result-container" id="vig-repeat-result">
+            <div class="result-box fresh">
+                <div class="result-label">Kết quả</div>
+                <div class="result-value success" id="vig-repeat-output"></div>
+            </div>
+            <div class="key-stream-display">
+                <div class="ks-label">Key Stream (khóa mở rộng)</div>
+                <div class="ks-value" id="vig-repeat-keystream"></div>
+            </div>
+            <button class="steps-toggle" onclick="toggleSteps('vig-repeat-steps')">📊 Xem chi tiết từng bước</button>
+            <div class="steps-content" id="vig-repeat-steps">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Ký tự gốc</th>
+                            <th>Key</th>
+                            <th>Giá trị</th>
+                            <th>Công thức</th>
+                            <th>Kết quả</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vig-repeat-steps-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     3. VIGENÈRE AUTOKEY
+     ═══════════════════════════════════════ -->
+<section class="cipher-section" id="section-vigenere-autokey">
+    <div class="section-header">
+        <div class="section-icon cyan">🔄</div>
+        <div>
+            <h2>Mật Mã Vigenère — Autokey</h2>
+            <p>Khóa = Key ban đầu + Plaintext (tự mở rộng bằng bản rõ)</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="formula-box">
+            <strong>Key stream:</strong> K = Key || Plaintext<br>
+            <strong>Mã hóa:</strong> C<sub>i</sub> = (M<sub>i</sub> + K<sub>i</sub>) mod 26<br>
+            <strong>Giải mã:</strong> M<sub>i</sub> = (C<sub>i</sub> − K<sub>i</sub> + 26) mod 26
+        </div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" onclick="setMode('vigenere-autokey', 'encrypt', this)">Mã hóa</button>
+            <button class="mode-btn" onclick="setMode('vigenere-autokey', 'decrypt', this)">Giải mã</button>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="vig-autokey-input">Văn bản đầu vào</label>
+                <input type="text" id="vig-autokey-input" placeholder="VD: HONESTYISTHEBE" value="HONESTYISTHEBE">
+            </div>
+            <div class="form-group">
+                <label for="vig-autokey-key">Khóa K (chuỗi)</label>
+                <input type="text" id="vig-autokey-key" placeholder="VD: ABADBE" value="ABADBE">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="runVigenereAutokey()">⚡ Thực thi</button>
+            <button class="btn btn-outline" onclick="clearSection('vigenere-autokey')">🗑️ Xóa</button>
+        </div>
+
+        <div class="result-container" id="vig-autokey-result">
+            <div class="result-box fresh">
+                <div class="result-label">Kết quả</div>
+                <div class="result-value success" id="vig-autokey-output"></div>
+            </div>
+            <div class="key-stream-display">
+                <div class="ks-label">Key Stream (khóa mở rộng)</div>
+                <div class="ks-value" id="vig-autokey-keystream"></div>
+            </div>
+            <button class="steps-toggle" onclick="toggleSteps('vig-autokey-steps')">📊 Xem chi tiết từng bước</button>
+            <div class="steps-content" id="vig-autokey-steps">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Ký tự gốc</th>
+                            <th>Key</th>
+                            <th>Giá trị</th>
+                            <th>Công thức</th>
+                            <th>Kết quả</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vig-autokey-steps-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     4. MÃ HÓA CHỮ ĐƠN
+     ═══════════════════════════════════════ -->
+<section class="cipher-section" id="section-substitution">
+    <div class="section-header">
+        <div class="section-icon green">🔤</div>
+        <div>
+            <h2>Mã Hóa Chữ Đơn</h2>
+            <p>Thay thế mỗi ký tự bằng ký tự tương ứng trong bảng khóa 26 chữ cái</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="formula-box">
+            <strong>Mã hóa:</strong> C = Key[index(M)]<br>
+            <strong>Giải mã:</strong> M = ReverseKey[index(C)]
+        </div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" onclick="setMode('substitution', 'encrypt', this)">Mã hóa</button>
+            <button class="mode-btn" onclick="setMode('substitution', 'decrypt', this)">Giải mã</button>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="sub-input">Văn bản đầu vào</label>
+                <input type="text" id="sub-input" placeholder="VD: LIKEFATHERLIKESO" value="LIKEFATHERLIKESO">
+            </div>
+            <div class="form-group">
+                <label for="sub-key">Khóa K (26 ký tự)</label>
+                <input type="text" id="sub-key" placeholder="VD: LYFGMKNERXJPQIVATOHSZDBUCW" value="LYFGMKNERXJPQIVATOHSZDBUCW" maxlength="26">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="runSubstitution()">⚡ Thực thi</button>
+            <button class="btn btn-outline" onclick="clearSection('substitution')">🗑️ Xóa</button>
+        </div>
+
+        <div class="result-container" id="sub-result">
+            <div class="result-box fresh">
+                <div class="result-label">Kết quả</div>
+                <div class="result-value success" id="sub-output"></div>
+            </div>
+            <div id="sub-key-display"></div>
+            <button class="steps-toggle" onclick="toggleSteps('sub-steps')">📊 Xem chi tiết từng bước</button>
+            <div class="steps-content" id="sub-steps">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Ký tự gốc</th>
+                            <th>Vị trí</th>
+                            <th>Kết quả</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sub-steps-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     5. PLAYFAIR
+     ═══════════════════════════════════════ -->
+<section class="cipher-section" id="section-playfair">
+    <div class="section-header">
+        <div class="section-icon orange">📋</div>
+        <div>
+            <h2>Mật Mã Playfair</h2>
+            <p>Ma trận khóa 5×5, mã hóa từng cặp 2 ký tự</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="formula-box">
+            <strong>Cùng hàng:</strong> dịch phải (mã hóa) / dịch trái (giải mã)<br>
+            <strong>Cùng cột:</strong> dịch xuống (mã hóa) / dịch lên (giải mã)<br>
+            <strong>Hình chữ nhật:</strong> đổi cột cho nhau
+        </div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" onclick="setMode('playfair', 'encrypt', this)">Mã hóa</button>
+            <button class="mode-btn" onclick="setMode('playfair', 'decrypt', this)">Giải mã</button>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="pf-input">Văn bản đầu vào</label>
+                <input type="text" id="pf-input" placeholder="VD: SOFARSOGOODSO" value="SOFARSOGOODSO">
+            </div>
+            <div class="form-group">
+                <label for="pf-key">Khóa K</label>
+                <input type="text" id="pf-key" placeholder="VD: EASTORW" value="EASTORW">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="runPlayfair()">⚡ Thực thi</button>
+            <button class="btn btn-outline" onclick="clearSection('playfair')">🗑️ Xóa</button>
+        </div>
+
+        <div class="result-container" id="pf-result">
+            <div class="result-box fresh">
+                <div class="result-label">Kết quả</div>
+                <div class="result-value success" id="pf-output"></div>
+            </div>
+            <div class="result-label" style="margin-top:16px">Ma trận khóa 5×5</div>
+            <div class="matrix-grid" id="pf-matrix"></div>
+            <button class="steps-toggle" onclick="toggleSteps('pf-steps')">📊 Xem chi tiết từng cặp</button>
+            <div class="steps-content" id="pf-steps">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Cặp</th>
+                            <th>Vị trí A</th>
+                            <th>Vị trí B</th>
+                            <th>Quy tắc</th>
+                            <th>Kết quả</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pf-steps-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     6. HOÁN VỊ
+     ═══════════════════════════════════════ -->
+<section class="cipher-section" id="section-transposition">
+    <div class="section-header">
+        <div class="section-icon pink">🔀</div>
+        <div>
+            <h2>Mật Mã Hoán Vị</h2>
+            <p>Viết theo hàng, đọc theo thứ tự cột do khóa quy định</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="formula-box">
+            <strong>Mã hóa:</strong> Viết plaintext vào bảng theo hàng, đọc theo thứ tự cột<br>
+            <strong>Giải mã:</strong> Chia ciphertext vào các cột theo thứ tự, đọc theo hàng
+        </div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" onclick="setMode('transposition', 'encrypt', this)">Mã hóa</button>
+            <button class="mode-btn" onclick="setMode('transposition', 'decrypt', this)">Giải mã</button>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="trans-input">Văn bản đầu vào</label>
+                <input type="text" id="trans-input" placeholder="VD: WHENINROMEDOASTHER" value="WHENINROMEDOASTHER">
+            </div>
+            <div class="form-group">
+                <label for="trans-key">Khóa K (dãy số, VD: 4356127)</label>
+                <input type="text" id="trans-key" placeholder="VD: 4356127" value="4356127">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="runTransposition()">⚡ Thực thi</button>
+            <button class="btn btn-outline" onclick="clearSection('transposition')">🗑️ Xóa</button>
+        </div>
+
+        <div class="result-container" id="trans-result">
+            <div class="result-box fresh">
+                <div class="result-label">Kết quả</div>
+                <div class="result-value success" id="trans-output"></div>
+            </div>
+            <div class="result-label" style="margin-top:16px">Bảng hoán vị</div>
+            <div style="overflow-x:auto" id="trans-table-container"></div>
+            <button class="steps-toggle" onclick="toggleSteps('trans-steps')">📊 Xem thứ tự đọc cột</button>
+            <div class="steps-content" id="trans-steps">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Thứ tự</th>
+                            <th>Cột</th>
+                            <th>Ký tự</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trans-steps-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</div>
+
+<!-- ════════ FOOTER ════════ -->
+<footer class="footer">
+    <p>An Toàn và Bảo Mật Thông Tin — Bài tập lớn: Mã hóa cổ điển</p>
+</footer>
+
+<!-- ════════ JS FILES ════════ -->
+<script src="js/ma-hoa-co-dien/caesar.js"></script>
+<script src="js/ma-hoa-co-dien/vigenere-lap-khoa.js"></script>
+<script src="js/ma-hoa-co-dien/vigenere-autokey.js"></script>
+<script src="js/ma-hoa-co-dien/substitution.js"></script>
+<script src="js/ma-hoa-co-dien/playfair.js"></script>
+<script src="js/ma-hoa-co-dien/transposition.js"></script>
+
+<script>
+/* ═══════════════════════════════════════
+   NAVIGATION & UI
+   ═══════════════════════════════════════ */
+const modes = {};
+
+function showSection(id) {
+    document.querySelectorAll('.cipher-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-' + id).classList.add('active');
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+    const navLink = document.querySelector(`nav a[data-section="${id}"]`);
+    if (navLink) navLink.classList.add('active');
+    // Close mobile menu
+    document.getElementById('mainNav').classList.remove('open');
+}
+
+function toggleMenu() {
+    document.getElementById('mainNav').classList.toggle('open');
+}
+
+function setMode(cipher, mode, btn) {
+    modes[cipher] = mode;
+    const parent = btn.parentElement;
+    parent.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function getMode(cipher) {
+    return modes[cipher] || 'encrypt';
+}
+
+function toggleSteps(id) {
+    document.getElementById(id).classList.toggle('show');
+}
+
+function clearSection(id) {
+    const section = document.getElementById('section-' + id);
+    section.querySelectorAll('input, textarea').forEach(el => el.value = '');
+    section.querySelectorAll('.result-container').forEach(el => el.classList.remove('show'));
+    section.querySelectorAll('.steps-content').forEach(el => el.classList.remove('show'));
+}
+
+/* ═══════════════════════════════════════
+   1. CAESAR
+   ═══════════════════════════════════════ */
+function runCaesar() {
+    const input = document.getElementById('caesar-input').value.trim();
+    const key = parseInt(document.getElementById('caesar-key').value) || 0;
+    if (!input) return alert('Vui lòng nhập văn bản!');
+
+    const mode = getMode('caesar');
+    const result = mode === 'encrypt' ? caesarEncrypt(input, key) : caesarDecrypt(input, key);
+
+    document.getElementById('caesar-output').textContent = result.result;
+    const tbody = document.getElementById('caesar-steps-body');
+    tbody.innerHTML = result.steps.map((s, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td class="cell-highlight">${s.char}</td>
+            <td>${s.value}</td>
+            <td>${s.formula}</td>
+            <td class="cell-result">${s.result}</td>
+        </tr>
+    `).join('');
+
+    document.getElementById('caesar-result').classList.add('show');
+}
+
+/* ═══════════════════════════════════════
+   2. VIGENÈRE LẶP KHÓA
+   ═══════════════════════════════════════ */
+function runVigenereRepeat() {
+    const input = document.getElementById('vig-repeat-input').value.trim();
+    const key = document.getElementById('vig-repeat-key').value.trim();
+    if (!input || !key) return alert('Vui lòng nhập đầy đủ!');
+
+    const mode = getMode('vigenere-repeat');
+    const result = mode === 'encrypt' ? vigenereRepeatEncrypt(input, key) : vigenereRepeatDecrypt(input, key);
+
+    document.getElementById('vig-repeat-output').textContent = result.result;
+    document.getElementById('vig-repeat-keystream').textContent = result.fullKey;
+
+    const tbody = document.getElementById('vig-repeat-steps-body');
+    tbody.innerHTML = result.steps.map((s, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td class="cell-highlight">${s.plainChar || s.cipherChar}</td>
+            <td class="cell-key">${s.keyChar}</td>
+            <td>${s.pValue !== undefined ? s.pValue : s.cValue}, ${s.kValue}</td>
+            <td>${s.formula}</td>
+            <td class="cell-result">${s.result}</td>
+        </tr>
+    `).join('');
+
+    document.getElementById('vig-repeat-result').classList.add('show');
+}
+
+/* ═══════════════════════════════════════
+   3. VIGENÈRE AUTOKEY
+   ═══════════════════════════════════════ */
+function runVigenereAutokey() {
+    const input = document.getElementById('vig-autokey-input').value.trim();
+    const key = document.getElementById('vig-autokey-key').value.trim();
+    if (!input || !key) return alert('Vui lòng nhập đầy đủ!');
+
+    const mode = getMode('vigenere-autokey');
+    const result = mode === 'encrypt' ? vigenereAutokeyEncrypt(input, key) : vigenereAutokeyDecrypt(input, key);
+
+    document.getElementById('vig-autokey-output').textContent = result.result;
+    document.getElementById('vig-autokey-keystream').textContent = result.fullKey;
+
+    const tbody = document.getElementById('vig-autokey-steps-body');
+    tbody.innerHTML = result.steps.map((s, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td class="cell-highlight">${s.plainChar || s.cipherChar}</td>
+            <td class="cell-key">${s.keyChar}</td>
+            <td>${s.pValue !== undefined ? s.pValue : s.cValue}, ${s.kValue}</td>
+            <td>${s.formula}</td>
+            <td class="cell-result">${s.result}</td>
+        </tr>
+    `).join('');
+
+    document.getElementById('vig-autokey-result').classList.add('show');
+}
+
+/* ═══════════════════════════════════════
+   4. SUBSTITUTION
+   ═══════════════════════════════════════ */
+function runSubstitution() {
+    const input = document.getElementById('sub-input').value.trim();
+    const key = document.getElementById('sub-key').value.trim();
+    if (!input || !key) return alert('Vui lòng nhập đầy đủ!');
+
+    const mode = getMode('substitution');
+    const result = mode === 'encrypt' ? substitutionEncrypt(input, key) : substitutionDecrypt(input, key);
+
+    if (result.error) return alert(result.error);
+
+    document.getElementById('sub-output').textContent = result.result;
+
+    // Hiển thị bảng khóa
+    const keyDisplay = document.getElementById('sub-key-display');
+    let keyHTML = '<div class="result-label" style="margin-top:12px;margin-bottom:8px">Bảng khóa thay thế</div>';
+    keyHTML += '<div style="overflow-x:auto"><table style="min-width:auto"><thead><tr>';
+    for (let i = 0; i < 26; i++) keyHTML += `<th style="padding:6px 8px;font-size:0.75rem">${String.fromCharCode(65 + i)}</th>`;
+    keyHTML += '</tr></thead><tbody><tr>';
+    for (let i = 0; i < 26; i++) keyHTML += `<td style="padding:6px 8px;color:var(--accent-green);text-align:center">${result.key[i]}</td>`;
+    keyHTML += '</tr></tbody></table></div>';
+    keyDisplay.innerHTML = keyHTML;
+
+    const tbody = document.getElementById('sub-steps-body');
+    tbody.innerHTML = result.steps.map((s, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td class="cell-highlight">${s.plainChar || s.cipherChar}</td>
+            <td>${s.position}</td>
+            <td class="cell-result">${s.result}</td>
+        </tr>
+    `).join('');
+
+    document.getElementById('sub-result').classList.add('show');
+}
+
+/* ═══════════════════════════════════════
+   5. PLAYFAIR
+   ═══════════════════════════════════════ */
+function runPlayfair() {
+    const input = document.getElementById('pf-input').value.trim();
+    const key = document.getElementById('pf-key').value.trim();
+    if (!input || !key) return alert('Vui lòng nhập đầy đủ!');
+
+    const mode = getMode('playfair');
+    const result = mode === 'encrypt' ? playfairEncrypt(input, key) : playfairDecrypt(input, key);
+
+    document.getElementById('pf-output').textContent = result.result;
+
+    // Ma trận
+    const matrixDiv = document.getElementById('pf-matrix');
+    matrixDiv.innerHTML = result.matrix.flat().map(ch =>
+        `<div class="matrix-cell">${ch}</div>`
+    ).join('');
+
+    const tbody = document.getElementById('pf-steps-body');
+    tbody.innerHTML = result.steps.map((s, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td class="cell-highlight">${s.pair}</td>
+            <td>${s.posA}</td>
+            <td>${s.posB}</td>
+            <td>${s.rule}</td>
+            <td class="cell-result">${s.result}</td>
+        </tr>
+    `).join('');
+
+    document.getElementById('pf-result').classList.add('show');
+}
+
+/* ═══════════════════════════════════════
+   6. TRANSPOSITION
+   ═══════════════════════════════════════ */
+function runTransposition() {
+    const input = document.getElementById('trans-input').value.trim();
+    const key = document.getElementById('trans-key').value.trim();
+    if (!input || !key) return alert('Vui lòng nhập đầy đủ!');
+
+    const mode = getMode('transposition');
+    const result = mode === 'encrypt' ? transpositionEncrypt(input, key) : transpositionDecrypt(input, key);
+
+    document.getElementById('trans-output').textContent = result.result;
+
+    // Bảng hoán vị
+    const container = document.getElementById('trans-table-container');
+    let tHTML = '<table class="trans-table"><thead><tr>';
+    result.keyArr.forEach(k => tHTML += `<th>${k}</th>`);
+    tHTML += '</tr></thead><tbody>';
+    result.table.forEach(row => {
+        tHTML += '<tr>';
+        row.forEach(cell => tHTML += `<td>${cell || ''}</td>`);
+        tHTML += '</tr>';
+    });
+    tHTML += '</tbody></table>';
+    container.innerHTML = tHTML;
+
+    // Thứ tự cột (chỉ cho mã hóa)
+    const tbody = document.getElementById('trans-steps-body');
+    if (result.columnOrder) {
+        tbody.innerHTML = result.columnOrder.map(c => `
+            <tr>
+                <td>${c.order}</td>
+                <td>Cột ${c.colIndex + 1}</td>
+                <td class="cell-result">${c.chars}</td>
+            </tr>
+        `).join('');
+    } else {
+        tbody.innerHTML = '<tr><td colspan="3">Đọc theo hàng từ bảng trên</td></tr>';
+    }
+
+    document.getElementById('trans-result').classList.add('show');
+}
+</script>
+
+</body>
+</html>
